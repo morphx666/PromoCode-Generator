@@ -9,6 +9,7 @@ switch(mode) {
         let length;
         let count;
         let format = "";
+        let skip = 0;
         if(args[1][0] == '+') {
             seed = parseInt(args[1]);
             idx = 2;
@@ -66,6 +67,7 @@ function generateRandomString(length, format) {
 }
 
 function isValid(code) {
+    code = code.replace(/-/g, "");
     let length = code.length;
     let acc = length;
     for(let i = 0; i < length; i++) {
