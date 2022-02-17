@@ -18,6 +18,7 @@ switch(mode) {
         length = parseInt(args[idx + 0]);
         count = parseInt(args[idx + 1]);
         rnd = xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
+        rnd(); // Discard first random number
 
         for(let i = 0; i < count; i++) {
             console.log(generateRandomString(length));
@@ -35,10 +36,12 @@ switch(mode) {
 function generateRandomString(length) {
     let result = "";
     let acc = length;
+    let p = 0;
     for (let i = 0; i < length - 1; i++) {
-        const c = valid[tausworthe(rnd() * valid.length) % valid.length];
+        const c = valid[tausworthe(p * i + rnd() * valid.length) % valid.length];
         result += c;
-        acc += c.charCodeAt(0);
+        p = c.charCodeAt(0);
+        acc += p;
     }
     return result + valid[acc % valid.length];
 }

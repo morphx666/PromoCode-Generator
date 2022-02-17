@@ -1,6 +1,6 @@
 ﻿public static class PromoCodeGenerator {
     private delegate double RandomFunction();
-    private static RandomFunction rnd;;
+    private static RandomFunction rnd;
     private const string valid = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 'I', 'O', 0 and 1 are excluded to avoid confusion
 
     public static void Main(string[] args) {
@@ -9,11 +9,11 @@
         switch(mode) {
             case "g":
                 int idx = 1;
-                int seed = -1;
+                uint seed = (uint)(Random.Shared.Next() * 0xDEADBEEF);
                 int length;
                 int count;
                 if(args.Length == 4) {
-                    seed = int.Parse(args[1]);
+                    seed = uint.Parse(args[1]);
                     idx = 2;
                 } else if(args.Length != 3) {
                     ShowUsage();
@@ -21,7 +21,8 @@
                 }
                 length = int.Parse(args[idx + 0]);
                 count = int.Parse(args[idx + 1]);
-                rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, (uint)seed);
+                rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
+                rnd(); // Discard first random number
 
                 for(int i = 0; i < count; i++) {
                     Console.WriteLine(GenerateRandomString(length));
@@ -40,10 +41,12 @@
     static string GenerateRandomString(int length) {
         string result = "";
         int acc = length;
+        int p = 0;
         for(int i = 0; i < length - 1; i++) {
-            char c = valid[Tausworthe((int)(rnd() * valid.Length)) % valid.Length];
+            char c = valid[Tausworthe(p * i + (int)(rnd() * valid.Length)) % valid.Length];
             result += c;
             acc += c;
+            p = c;
         }
         return result + valid[acc % valid.Length];
     }
@@ -78,8 +81,9 @@
 
     static RandomFunction Sfc32(uint a, uint b, uint c, uint d) {
         return delegate () {
-            a >>= 0; b >>= 0; c >>= 0; d >>= 0;
-            var t = (a + b) | 0;
+            a >>= 0; b >>= 0;
+            c >>= 0; d >>= 0;
+            uint t = (a + b) | 0;
             a = b ^ b >> 9;
             b = c + (c << 3) | 0;
             c = (c << 21 | c >> 11);
