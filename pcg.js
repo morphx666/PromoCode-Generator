@@ -13,6 +13,10 @@ switch(mode) {
             seed = parseInt(args[1]);
             idx = 2;
         }
+        if(args[idx][0] == '.') {
+            skip = parseInt(args[idx].slice(1));
+            idx++;
+        }
         length = parseInt(args[idx + 0]);
         count = parseInt(args[idx + 1]);
         if(args.length == idx + 3) format = args[idx + 2];
@@ -20,6 +24,7 @@ switch(mode) {
         rnd = xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
         rnd(); // Discard first random number
 
+        for(let i = 0; i < skip; i++) generateRandomString(length, format);
         for(let i = 0; i < count; i++) {
             console.log(generateRandomString(length, format));
         }
@@ -112,6 +117,6 @@ function sfc32(a, b, c, d) {
 
 function showUsage() {
     console.log("PromoCode Generator Usage:");
-    console.log("  Generate: node pcg.js g [+seed] length count [format]");
+    console.log("  Generate: node pcg.js g [+seed] [.skip] length count [format]");
     console.log("  Validate: node pcg.js v code");
 }

@@ -13,10 +13,15 @@
                 uint seed = (uint)(Random.Shared.Next() * 0xDEADBEEF);
                 int length;
                 int count;
+                int skip = 0;
                 string format = "";
                 if(args[1].StartsWith('+')) {
                     seed = uint.Parse(args[1]);
                     idx = 2;
+                }
+                if(args[idx].StartsWith('.')) {
+                    skip = int.Parse(args[idx].TrimStart('.'));
+                    idx++;
                 }
                 length = int.Parse(args[idx + 0]);
                 count = int.Parse(args[idx + 1]);
@@ -25,6 +30,7 @@
                 rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
                 rnd(); // Discard first random number
 
+                for(int i = 0; i < skip; i++) GenerateRandomString(length, format);
                 for(int i = 0; i < count; i++) {
                     Console.WriteLine(GenerateRandomString(length, format));
                 }
@@ -122,7 +128,7 @@
 
     static void ShowUsage() {
         Console.WriteLine("PromoCode Generator Usage:");
-        Console.WriteLine("  Generate: pcg g [+seed] length count [format]");
+        Console.WriteLine("  Generate: pcg g [+seed] [.skip] length count [format]");
         Console.WriteLine("  Validate: pcg v code");
     }
 }
