@@ -52,7 +52,8 @@ function generateRandomString(length, format) {
     let acc = length;
     let p = 0;
     for (let i = 0; i < length - 1; i++) {
-        const c = valid[tausworthe(p * i + rnd() * valid.length) % valid.length];
+        const k = (tausworthe(p * i) + rnd() * valid.length) % valid.length;
+        const c = valid[k >> 0];
         result += c;
         p = c.charCodeAt(0);
         acc += luhn(p, i);

@@ -59,7 +59,8 @@
         int acc = length;
         int p = 0;
         for(int i = 0; i < length - 1; i++) {
-            char c = valid[Tausworthe(p * i + (int)(rnd() * valid.Length)) % valid.Length];
+            int k = (int)((Tausworthe(p * i) + rnd() * valid.Length) % valid.Length);
+            char c = valid[k];
             result += c;
             p = c;
             acc += Luhn(p, i);
