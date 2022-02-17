@@ -45,8 +45,8 @@
         for(int i = 0; i < length - 1; i++) {
             char c = valid[Tausworthe(p * i + (int)(rnd() * valid.Length)) % valid.Length];
             result += c;
-            acc += c;
             p = c;
+            acc += Luhn(p, i);
         }
         return result + valid[acc % valid.Length];
     }
@@ -62,9 +62,19 @@
         int acc = length;
         for(int i = 0; i < length; i++) {
             if(valid.IndexOf(code[i]) == -1) return false;
-            if(i < length - 1) acc += code[i];
+            if(i < length - 1) acc += Luhn(code[i], i);
         }
         return code[length - 1] == valid[acc % valid.Length];
+    }
+
+    static int Luhn(int n, int i) { // Luhn algorithm
+        if(i % 2 == 0) n *= 2;
+        if(n >= valid.Length - 1) {
+            int ip = (int)Math.Floor(n / 10.0);
+            int fp = n - ip * 10;
+            n = ip + fp;
+        }
+        return n;
     }
 
     static RandomFunction Xoshiro128ss(uint a, uint b, uint c, uint d) {

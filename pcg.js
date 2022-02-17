@@ -41,7 +41,7 @@ function generateRandomString(length) {
         const c = valid[tausworthe(p * i + rnd() * valid.length) % valid.length];
         result += c;
         p = c.charCodeAt(0);
-        acc += p;
+        acc += luhn(p, i);
     }
     return result + valid[acc % valid.length];
 }
@@ -51,9 +51,19 @@ function isValid(code) {
     let acc = length;
     for(let i = 0; i < length; i++) {
         if(valid.indexOf(code[i]) == -1) return false;
-        if(i < length - 1) acc += code[i].charCodeAt(0);
+        if(i < length - 1) acc += luhn(code[i].charCodeAt(0), i);
     }
     return code[length - 1] == valid[acc % valid.length];
+}
+
+function luhn(n, i) { // Luhn algorithm
+    if(i % 2 == 0) n *= 2;
+    if(n >= valid.length - 1) {
+        const ip = Math.floor(n / 10.0);
+        const fp = n - ip * 10;
+        n = ip + fp;
+    }
+    return n;
 }
 
 function tausworthe(seed) { // Pseudo-random number generator
