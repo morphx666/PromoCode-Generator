@@ -25,7 +25,14 @@
                 }
                 length = int.Parse(args[idx + 0]);
                 count = int.Parse(args[idx + 1]);
-                if(args.Length == idx + 3) format = args[idx + 2];
+                if(args.Length == idx + 3) {
+                    format = args[idx + 2];
+                    if(format.Split('-').Select(int.Parse).Sum() != length) {
+                        ShowUsage();
+                        Console.WriteLine($"\r\nInvalid Format: '{format}'");
+                        break;
+                    }
+                }
                 
                 rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
                 rnd(); // Discard first random number

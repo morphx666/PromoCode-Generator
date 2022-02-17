@@ -20,7 +20,14 @@ switch(mode) {
         }
         length = parseInt(args[idx + 0]);
         count = parseInt(args[idx + 1]);
-        if(args.length == idx + 3) format = args[idx + 2];
+        if(args.length == idx + 3) {
+            format = args[idx + 2];
+            if(format.split('-').map(x => parseInt(x)).reduce((a, b) => a + b) != length) {
+                showUsage();
+                console.log(`\r\nInvalid Format: '${format}'`);
+                break;
+            }
+        }
 
         rnd = xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
         rnd(); // Discard first random number
@@ -32,7 +39,7 @@ switch(mode) {
         break;
     case "v":
         const code = args[1];
-        console.log(isValid(code));
+        console.log(`Is Valid: ${isValid(code)}`);
         break;
     default:
         showUsage();
