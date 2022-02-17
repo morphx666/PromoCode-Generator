@@ -1,5 +1,6 @@
 ﻿public static class PromoCodeGenerator {
     private delegate double RandomFunction();
+#pragma warning disable CS8618
     private static RandomFunction rnd;
     private const string valid = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 'I', 'O', 0 and 1 are excluded to avoid confusion
 
@@ -12,33 +13,35 @@
                 uint seed = (uint)(Random.Shared.Next() * 0xDEADBEEF);
                 int length;
                 int count;
-                if(args.Length == 4) {
+                string format = "";
+                if(args[1].StartsWith('+')) {
                     seed = uint.Parse(args[1]);
                     idx = 2;
-                } else if(args.Length != 3) {
-                    ShowUsage();
-                    break;
                 }
                 length = int.Parse(args[idx + 0]);
                 count = int.Parse(args[idx + 1]);
+                if(args.Length == idx + 3) format = args[idx + 2];
+                
                 rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
                 rnd(); // Discard first random number
 
                 for(int i = 0; i < count; i++) {
-                    Console.WriteLine(GenerateRandomString(length));
+                    Console.WriteLine(GenerateRandomString(length, format));
                 }
                 break;
             case "v":
                 string code = args[1];
-                Console.WriteLine(IsValid(code));
+                Console.WriteLine($"Is Valid: {IsValid(code)}");
                 break;
             default:
                 ShowUsage();
                 break;
         }
+
+        Console.WriteLine();
     }
 
-    static string GenerateRandomString(int length) {
+    static string GenerateRandomString(int length, string format = "") {
         string result = "";
         int acc = length;
         int p = 0;
@@ -48,7 +51,19 @@
             p = c;
             acc += Luhn(p, i);
         }
-        return result + valid[acc % valid.Length];
+        result += valid[acc % valid.Length];
+
+        if(format != "") {
+            int c = 0;
+            int[] tabs = format.Split('-').Select(int.Parse).ToArray();
+            string r = "";
+            for(int i = 0; i < tabs.Length; i++) {
+                r += result.Substring(c, tabs[i]) + "-";
+                c += tabs[i];
+            }
+            result = r.TrimEnd('-');
+        }
+        return result;
     }
 
     static int Tausworthe(int seed) { // Pseudo-random number generator
@@ -58,6 +73,7 @@
     }
 
     static bool IsValid(string code) {
+        code = code.Replace("-", "");
         int length = code.Length;
         int acc = length;
         for(int i = 0; i < length; i++) {
@@ -106,7 +122,7 @@
 
     static void ShowUsage() {
         Console.WriteLine("PromoCode Generator Usage:");
-        Console.WriteLine("  Generate: pcg g [seed] length count");
+        Console.WriteLine("  Generate: pcg g [+seed] length count [format]");
         Console.WriteLine("  Validate: pcg v code");
     }
 }

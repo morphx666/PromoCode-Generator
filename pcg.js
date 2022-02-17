@@ -8,20 +8,20 @@ switch(mode) {
         let seed = Math.random() * 0xDEADBEEF;
         let length;
         let count;
-        if(args.length == 4) {
+        let format = "";
+        if(args[1][0] == '+') {
             seed = parseInt(args[1]);
             idx = 2;
-        } else if(args.length != 3) {
-            showUsage();
-            break;
         }
         length = parseInt(args[idx + 0]);
         count = parseInt(args[idx + 1]);
+        if(args.length == idx + 3) format = args[idx + 2];
+
         rnd = xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
         rnd(); // Discard first random number
 
         for(let i = 0; i < count; i++) {
-            console.log(generateRandomString(length));
+            console.log(generateRandomString(length, format));
         }
         break;
     case "v":
@@ -32,8 +32,9 @@ switch(mode) {
         showUsage();
         break;
 }
+console.log();
 
-function generateRandomString(length) {
+function generateRandomString(length, format) {
     let result = "";
     let acc = length;
     let p = 0;
@@ -43,7 +44,20 @@ function generateRandomString(length) {
         p = c.charCodeAt(0);
         acc += luhn(p, i);
     }
-    return result + valid[acc % valid.length];
+    result += valid[acc % valid.length];
+
+    if(format != "") {
+        let c = 0;
+        const tabs = format.split('-').map(x => parseInt(x));
+        let r = "";
+        for(let i = 0; i < tabs.length; i++) {
+            r += result.substring(c, c + tabs[i]) + "-";
+            c += tabs[i];
+        }
+        result = r.slice(0, -1);
+    }
+
+    return result;
 }
 
 function isValid(code) {
@@ -98,6 +112,6 @@ function sfc32(a, b, c, d) {
 
 function showUsage() {
     console.log("PromoCode Generator Usage:");
-    console.log("  Generate: node pcg.js g [seed] length count");
+    console.log("  Generate: node pcg.js g [+seed] length count [format]");
     console.log("  Validate: node pcg.js v code");
 }
