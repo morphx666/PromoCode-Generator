@@ -1,6 +1,6 @@
-﻿public static class PromoCodeGenerator {
+﻿#pragma warning disable CS8618
+public static class PromoCodeGenerator {
     private delegate double RandomFunction();
-#pragma warning disable CS8618
     private static RandomFunction rnd;
     private const string valid = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 'I', 'O', 0 and 1 are excluded to avoid confusion
 
@@ -37,7 +37,7 @@
                 rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
                 rnd(); // Discard first random number
 
-                for(int i = 0; i < skip; i++) GenerateRandomString(length, format);
+                for(int i = 0; i < skip; i++) GenerateRandomString(length);
                 for(int i = 0; i < count; i++) {
                     Console.WriteLine(GenerateRandomString(length, format));
                 }
@@ -83,7 +83,7 @@
     static int Tausworthe(int seed) { // Pseudo-random number generator
         seed ^= seed >> 13;
         seed ^= seed << 18;
-        return seed & 0x7fffffff;
+        return seed & 0x7FFFFFFF;
     }
 
     static bool IsValid(string code) {
@@ -107,7 +107,7 @@
         return n;
     }
 
-    static RandomFunction Xoshiro128ss(uint a, uint b, uint c, uint d) {
+    static RandomFunction Xoshiro128ss(uint a, uint b, uint c, uint d) { // xoshiro128**
         return delegate () {
             uint t = b << 9;
             uint r = a * 5;
@@ -115,11 +115,11 @@
             c ^= a; d ^= b;
             b ^= c; a ^= d; c ^= t;
             d = d << 11 | d >> 21;
-            return (r >> 0) / 4294967296.0;
+            return (r >> 0) / (double)0x100000000;
         };
     }
 
-    static RandomFunction Sfc32(uint a, uint b, uint c, uint d) {
+    static RandomFunction Sfc32(uint a, uint b, uint c, uint d) { // Simple Fast Counter
         return delegate () {
             a >>= 0; b >>= 0;
             c >>= 0; d >>= 0;
@@ -130,7 +130,7 @@
             d = d + 1 | 0;
             t = t + d | 0;
             c = c + t | 0;
-            return (t >> 0) / 4294967296.0;
+            return (t >> 0) / (double)0x100000000;
         };
     }
 

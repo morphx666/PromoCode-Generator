@@ -32,7 +32,7 @@ switch(mode) {
         rnd = xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
         rnd(); // Discard first random number
 
-        for(let i = 0; i < skip; i++) generateRandomString(length, format);
+        for(let i = 0; i < skip; i++) generateRandomString(length);
         for(let i = 0; i < count; i++) {
             console.log(generateRandomString(length, format));
         }
@@ -98,22 +98,25 @@ function luhn(n, i) { // Luhn algorithm
 function tausworthe(seed) { // Pseudo-random number generator
     seed ^= seed >> 13;
     seed ^= seed << 18;
-    return seed & 0x7fffffff;
+    return seed & 0x7FFFFFFF;
 }
 
-function xoshiro128ss(a, b, c, d) {
+function xoshiro128ss(a, b, c, d) { // xoshiro128**
     return function() {
-        var t = b << 9, r = a * 5; r = (r << 7 | r >>> 25) * 9;
+        var t = b << 9;
+        var r = a * 5;
+        r = (r << 7 | r >>> 25) * 9;
         c ^= a; d ^= b;
         b ^= c; a ^= d; c ^= t;
         d = d << 11 | d >>> 21;
-        return (r >>> 0) / 4294967296;
+        return (r >>> 0) / 0x100000000;
     }
 }
 
-function sfc32(a, b, c, d) {
+function sfc32(a, b, c, d) { // Simple Fast Counter
     return function() {
-      a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
+      a >>>= 0; b >>>= 0;
+      c >>>= 0; d >>>= 0; 
       var t = (a + b) | 0;
       a = b ^ b >>> 9;
       b = c + (c << 3) | 0;
@@ -121,7 +124,7 @@ function sfc32(a, b, c, d) {
       d = d + 1 | 0;
       t = t + d | 0;
       c = c + t | 0;
-      return (t >>> 0) / 4294967296;
+      return (t >>> 0) / 0x100000000;
     }
 }
 
