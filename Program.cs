@@ -15,9 +15,9 @@
                 int count;
                 int skip = 0;
                 string format = "";
-                if(args[1].StartsWith('+')) {
+                if(args[idx].StartsWith('+')) {
                     seed = uint.Parse(args[1]);
-                    idx = 2;
+                    idx++;
                 }
                 if(args[idx].StartsWith('.')) {
                     skip = int.Parse(args[idx].TrimStart('.'));

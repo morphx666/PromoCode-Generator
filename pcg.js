@@ -10,9 +10,9 @@ switch(mode) {
         let count;
         let format = "";
         let skip = 0;
-        if(args[1][0] == '+') {
+        if(args[idx][0] == '+') {
             seed = parseInt(args[1]);
-            idx = 2;
+            idx++;
         }
         if(args[idx][0] == '.') {
             skip = parseInt(args[idx].slice(1));
