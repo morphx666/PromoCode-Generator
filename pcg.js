@@ -47,7 +47,7 @@ switch(mode) {
 }
 console.log();
 
-function generateRandomString(length, format) {
+function generateRandomString(length, format = "") {
     let result = "";
     let acc = length;
     let p = 0;

@@ -2,7 +2,7 @@
   "profiles": {
     "PromoCodeGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "g 1 10 1"
+      "commandLineArgs": "g 8 5 3-3-2"
     }
   }
 }

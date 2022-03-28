@@ -80,12 +80,6 @@ public static class PromoCodeGenerator {
         return result;
     }
 
-    static int Tausworthe(int seed) { // Pseudo-random number generator
-        seed ^= seed >> 13;
-        seed ^= seed << 18;
-        return seed & 0x7FFFFFFF;
-    }
-
     static bool IsValid(string code) {
         code = code.Replace("-", "");
         int length = code.Length;
@@ -95,6 +89,12 @@ public static class PromoCodeGenerator {
             if(i < length - 1) acc += Luhn(code[i], i);
         }
         return code[length - 1] == valid[acc % valid.Length];
+    }
+
+    static int Tausworthe(int seed) { // Pseudo-random number generator
+        seed ^= seed >> 13;
+        seed ^= seed << 18;
+        return seed & 0x7FFFFFFF;
     }
 
     static int Luhn(int n, int i) { // Luhn algorithm
