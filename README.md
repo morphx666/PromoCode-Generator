@@ -1,20 +1,21 @@
 # PromoCode-Generator
 
-This is a tool to generate, pseudo-random, auto-verifiable and promotional codes. The codes could also be used as serial numbers, registration keys, etc...
+This is a tool to generate, pseudo-random, auto-verifiable promotional codes.<br>
+The codes can also be used as serial numbers, registration keys, etc...
 
 The codes are generated from several pseudo-random generators and are then _signed_ with a checksum, so they can be validated.<br>
 Each code can contain letters (except for 'I' and 'O') and numbers (except for '0' and '1'). This is to avoid confusions.
 
 ## Usage
 
-The tools has to main operational modes:
+The tool has to main operational modes:
 
 - Generate: `pcg g [+seed] [.skip] length count [format]`
 - Validate: `pcg v code`
 
 ## Generating Codes
 
-For example, to generate 5, 10 characters long codes:<br>
+To generate 5, 10 characters long codes:<br>
 `pcg g 10 5`
 
 This will produce an output similar to this one:
