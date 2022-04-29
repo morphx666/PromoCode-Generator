@@ -1,6 +1,6 @@
 # PromoCode-Generator
 
-This is a tool to generate, pseudo-random, auto-verifiable promotional codes.<br>
+This is a tool for generating, pseudo-random, auto-verifiable promotional codes.<br>
 The codes can also be used as serial numbers, registration keys, etc...
 
 The codes are generated from several pseudo-random generators and are then _signed_ with a checksum, so they can be validated.<br>
