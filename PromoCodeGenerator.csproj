@@ -7,6 +7,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>pcg</AssemblyName>
+    <AssemblyVersion>2022.4.29.15</AssemblyVersion>
+    <FileVersion>2022.4.29.15</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove=".gitignore" />
+  </ItemGroup>
 
 </Project>

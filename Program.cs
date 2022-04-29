@@ -1,4 +1,7 @@
 ﻿#pragma warning disable CS8618
+using System.Diagnostics;
+using System.Text;
+
 public static class PromoCodeGenerator {
     private delegate double RandomFunction();
     private static RandomFunction rnd;
@@ -9,74 +12,90 @@ public static class PromoCodeGenerator {
 
         switch(mode) {
             case "g":
+                if(args.Length < 3) {
+                    ShowUsage("Invalid argumen count");
+                    break;
+                }
+
                 int idx = 1;
                 uint seed = (uint)(Random.Shared.Next() * 0xDEADBEEF);
                 int length;
-                int count;
-                int skip = 0;
+                ulong count;
+                ulong skip = 0;
                 string format = "";
-                if(args[idx].StartsWith('+')) {
-                    seed = uint.Parse(args[1]);
-                    idx++;
-                }
-                if(args[idx].StartsWith('.')) {
-                    skip = int.Parse(args[idx].TrimStart('.'));
-                    idx++;
-                }
+                int[]? tabs = null;
+                if(args[idx].StartsWith('+')) seed = uint.Parse(args[idx++]);
+                if(args[idx].StartsWith('.')) skip = ulong.Parse(args[idx++].TrimStart('.'));
+
                 length = int.Parse(args[idx + 0]);
-                count = int.Parse(args[idx + 1]);
+                count = ulong.Parse(args[idx + 1]);
                 if(args.Length == idx + 3) {
                     format = args[idx + 2];
                     if(format.Split('-').Select(int.Parse).Sum() != length) {
-                        ShowUsage();
-                        Console.WriteLine($"\r\nInvalid Format: '{format}'");
+                        ShowUsage($"Invalid format: '{format}'");
                         break;
+                    } else {
+                        tabs = format.Split('-').Select(int.Parse).ToArray();
                     }
                 }
-                
+
+                double max = Math.Pow(valid.Length, length - 1);
+                if(max < count || count + skip > max) {
+                    ShowUsage($"Unable to generate {count} unique codes of length {length} {(skip > 0 ? $"skipping {skip}" : "")}\nThe maximum number of codes is {max - skip}");
+                    break;
+                }
+
                 rnd = Xoshiro128ss(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
+                //rnd = Sfc32(0x9E3779B9, 0x243F6A88, 0xB7E15162, seed);
                 rnd(); // Discard first random number
 
-                for(int i = 0; i < skip; i++) GenerateRandomString(length);
-                for(int i = 0; i < count; i++) {
-                    Console.WriteLine(GenerateRandomString(length, format));
+                Stopwatch sw = Stopwatch.StartNew();
+                for(ulong i = 0; i < skip; i++) GenerateRandomString(length);
+                for(ulong i = 0; i < count; i++) {
+                    Console.WriteLine(GenerateRandomString(length, tabs));
                 }
+                Console.WriteLine($"\r\nElapsed: {sw.ElapsedMilliseconds:N2}ms");
                 break;
             case "v":
+                if(args.Length < 2) {
+                    ShowUsage("Invalid argumen count");
+                    break;
+                }
+
                 string code = args[1];
-                Console.WriteLine($"Is Valid: {IsValid(code)}");
+                Console.WriteLine($"The code is{(IsValid(code) ? "" : " not")} valid");
                 break;
             default:
-                ShowUsage();
+                ShowUsage("Missing mode argument: [g]enerate, [v]alidate");
                 break;
         }
 
         Console.WriteLine();
     }
 
-    static string GenerateRandomString(int length, string format = "") {
-        string result = "";
+    static string GenerateRandomString(int length, int[]? tabs = null) {
+        StringBuilder code = new();
         int acc = length;
         int p = 0;
         for(int i = 0; i < length - 1; i++) {
             int k = (int)((Tausworthe(p * i) + rnd() * valid.Length) % valid.Length);
             char c = valid[k];
-            result += c;
+            code.Append(c);
             p = c;
             acc += Luhn(p, i);
         }
-        result += valid[acc % valid.Length];
+        string result = code.Append(valid[acc % valid.Length]).ToString();
 
-        if(format != "") {
+        if(tabs != null) {
             int c = 0;
-            int[] tabs = format.Split('-').Select(int.Parse).ToArray();
-            string r = "";
+            StringBuilder r = new();
             for(int i = 0; i < tabs.Length; i++) {
-                r += result.Substring(c, tabs[i]) + "-";
+                r.Append(result.AsSpan(c, tabs[i])).Append('-');
                 c += tabs[i];
             }
-            result = r.TrimEnd('-');
+            result = r.ToString().TrimEnd('-');
         }
+
         return result;
     }
 
@@ -85,7 +104,7 @@ public static class PromoCodeGenerator {
         int length = code.Length;
         int acc = length;
         for(int i = 0; i < length; i++) {
-            if(valid.IndexOf(code[i]) == -1) return false;
+            if(!valid.Contains(code[i])) return false;
             if(i < length - 1) acc += Luhn(code[i], i);
         }
         return code[length - 1] == valid[acc % valid.Length];
@@ -134,9 +153,10 @@ public static class PromoCodeGenerator {
         };
     }
 
-    static void ShowUsage() {
+    static void ShowUsage(string extra = "") {
         Console.WriteLine("PromoCode Generator Usage:");
         Console.WriteLine("  Generate: pcg g [+seed] [.skip] length count [format]");
         Console.WriteLine("  Validate: pcg v code");
+        if(extra != "") Console.WriteLine($"\r\n{extra}");
     }
 }
